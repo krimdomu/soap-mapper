@@ -42,21 +42,49 @@ sub parse {
    $self->parse_namespaces;
    $self->parse_operations;
    $self->parse_types;
+   $self->parse_endpoint;
 }
 
 sub wsdl { shift->{wsdl}; }
 sub xp { shift->{xp}; }
+
+sub get_operations {
+   my  ($self) = @_;
+   return $self->{operations};
+}
+
+sub get_types {
+   my  ($self) = @_;
+   return $self->{types};
+}
+
+sub get_target_namespace {
+   my ($self) = @_;
+   return $self->{target_namespace};
+}
+
+sub get_endpoint {
+   my ($self) = @_;
+   return $self->{endpoint};
+}
+
+sub parse_endpoint {
+   my ($self) = @_;
+
+   my $x = $self->xp->find('wsdl:definitions/wsdl:service//soap11:address/@location')->shift;
+   $x  ||= $self->xp->find('wsdl:definitions/wsdl:service//soap12:address/@location')->shift;
+
+   $self->{endpoint} = $x->getValue;
+}
 
 sub parse_namespaces {
    my ($self) = @_;
 
    $self->{element_form_default} = $self->xp->getNodeText('wsdl:definitions/wsdl:types/xs:schema/@elementFormDefault')->value;
 
-   my $x = $self->xp->find('wsdl:definitions/@targetNamespace');
+   my $x = $self->xp->find('wsdl:definitions/@targetNamespace')->shift;
 
-   for my $node ($x->get_nodelist) {
-      push(@{ $self->{namespaces} }, $node->getNodeValue);
-   }
+   $self->{target_namespace} = $x->getValue;
 }
 
 sub parse_operations {

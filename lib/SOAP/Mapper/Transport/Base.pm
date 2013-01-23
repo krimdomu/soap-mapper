@@ -19,4 +19,7 @@ sub new {
    return $self;
 }
 
+sub get { die("Must be implemented."); }
+sub post { die("Must be implemented."); }
+
 1;
